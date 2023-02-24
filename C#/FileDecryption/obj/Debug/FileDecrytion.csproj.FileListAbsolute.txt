@@ -1,0 +1,13 @@
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.MainForm.resources
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.Properties.Resources.resources
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.csproj.GenerateResource.Cache
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.exe
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.pdb
+E:\GZY\FileDecrytion\FileDecrytion\bin\Debug\FileDecrytion.exe.config
+E:\GZY\FileDecrytion\FileDecrytion\bin\Debug\FileDecrytion.exe.manifest
+E:\GZY\FileDecrytion\FileDecrytion\bin\Debug\FileDecrytion.application
+E:\GZY\FileDecrytion\FileDecrytion\bin\Debug\FileDecrytion.exe
+E:\GZY\FileDecrytion\FileDecrytion\bin\Debug\FileDecrytion.pdb
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.exe.manifest
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.application
+E:\GZY\FileDecrytion\FileDecrytion\obj\Debug\FileDecrytion.csprojResolveAssemblyReference.cache
