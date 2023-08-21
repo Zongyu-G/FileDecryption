@@ -67,6 +67,7 @@
             this.lbFilePath.Size = new System.Drawing.Size(82, 15);
             this.lbFilePath.TabIndex = 2;
             this.lbFilePath.Text = "文件路径：";
+            this.lbFilePath.DoubleClick += new System.EventHandler(this.lbFilePath_DoubleClick);
             // 
             // lbMessage
             // 
@@ -103,6 +104,7 @@
             // 
             // cbHeadVerify
             // 
+            this.cbHeadVerify.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cbHeadVerify.AutoSize = true;
             this.cbHeadVerify.Location = new System.Drawing.Point(350, 106);
             this.cbHeadVerify.Name = "cbHeadVerify";
@@ -125,7 +127,10 @@
             this.Controls.Add(this.txtFilePath);
             this.Controls.Add(this.btnSelectFile);
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "解密";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             this.ResumeLayout(false);
             this.PerformLayout();

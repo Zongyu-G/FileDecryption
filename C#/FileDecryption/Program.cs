@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace FileDecryption
             }
             try
             {
+                string m_ParamFile = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)  + "FileDecryption.ini";
+                MainForm.m_Keys = MainForm.KeysToBytes(IniOperation.GetStringValue(m_ParamFile, "Setting", "Keys", MainForm.KeysToString(MainForm.keys)));
                 if (args != null)
                 {
                     string str = null;

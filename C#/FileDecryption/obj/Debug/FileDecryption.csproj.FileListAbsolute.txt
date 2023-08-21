@@ -37,4 +37,4 @@ E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.exe.manifest
 E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.application
 E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.exe
 E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.pdb
-E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.csprojResolveAssemblyReference.cache
+E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.GetKeysForm.resources
