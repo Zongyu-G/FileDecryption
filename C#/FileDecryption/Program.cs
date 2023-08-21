@@ -22,7 +22,7 @@ namespace FileDecryption
             }
             try
             {
-                string m_ParamFile = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)  + "FileDecryption.ini";
+                string m_ParamFile = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)  + "\\FileDecryption.ini";
                 MainForm.m_Keys = MainForm.KeysToBytes(IniOperation.GetStringValue(m_ParamFile, "Setting", "Keys", MainForm.KeysToString(MainForm.keys)));
                 if (args != null)
                 {
