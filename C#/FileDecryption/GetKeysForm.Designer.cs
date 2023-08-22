@@ -37,6 +37,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.btn_GetKeys = new System.Windows.Forms.Button();
             this.btn_UpdateKeys = new System.Windows.Forms.Button();
+            this.btn_Help = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtMessage
@@ -114,7 +115,7 @@
             // btn_GetKeys
             // 
             this.btn_GetKeys.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_GetKeys.Location = new System.Drawing.Point(463, 84);
+            this.btn_GetKeys.Location = new System.Drawing.Point(461, 83);
             this.btn_GetKeys.Name = "btn_GetKeys";
             this.btn_GetKeys.Size = new System.Drawing.Size(92, 25);
             this.btn_GetKeys.TabIndex = 14;
@@ -125,7 +126,7 @@
             // btn_UpdateKeys
             // 
             this.btn_UpdateKeys.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_UpdateKeys.Location = new System.Drawing.Point(573, 84);
+            this.btn_UpdateKeys.Location = new System.Drawing.Point(573, 83);
             this.btn_UpdateKeys.Name = "btn_UpdateKeys";
             this.btn_UpdateKeys.Size = new System.Drawing.Size(92, 25);
             this.btn_UpdateKeys.TabIndex = 15;
@@ -133,11 +134,23 @@
             this.btn_UpdateKeys.UseVisualStyleBackColor = true;
             this.btn_UpdateKeys.Click += new System.EventHandler(this.btn_UpdateKeys_Click);
             // 
+            // btn_Help
+            // 
+            this.btn_Help.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_Help.Location = new System.Drawing.Point(349, 83);
+            this.btn_Help.Name = "btn_Help";
+            this.btn_Help.Size = new System.Drawing.Size(92, 25);
+            this.btn_Help.TabIndex = 16;
+            this.btn_Help.Text = "使用说明";
+            this.btn_Help.UseVisualStyleBackColor = true;
+            this.btn_Help.Click += new System.EventHandler(this.btn_Help_Click);
+            // 
             // GetKeysForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(681, 424);
+            this.Controls.Add(this.btn_Help);
             this.Controls.Add(this.btn_UpdateKeys);
             this.Controls.Add(this.btn_GetKeys);
             this.Controls.Add(this.button1);
@@ -167,5 +180,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button btn_GetKeys;
         private System.Windows.Forms.Button btn_UpdateKeys;
+        private System.Windows.Forms.Button btn_Help;
     }
 }

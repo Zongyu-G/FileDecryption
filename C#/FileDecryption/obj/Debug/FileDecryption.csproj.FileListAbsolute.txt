@@ -38,3 +38,4 @@ E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.application
 E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.exe
 E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.pdb
 E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.GetKeysForm.resources
+E:\GZY\FileDecryption\C#\FileDecryption\obj\Debug\FileDecryption.HelpForm.resources

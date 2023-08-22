@@ -108,7 +108,7 @@ namespace FileDecryption
         {
             if (path != txtFilePath.Text)
             {
-                if (txtFilePath.Text == null || txtFilePath.Text == string.Empty)
+                if (string.IsNullOrEmpty(txtFilePath.Text))
                     return;
                 else if (txtFilePath.Text.ElementAt(0) == ' ')
                     return;

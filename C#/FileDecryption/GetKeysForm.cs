@@ -15,7 +15,7 @@ namespace FileDecryption
     {
         private string m_EncryptFile = "";
         private string m_DecryptFile = "";
-        public static byte[] m_Keys = new byte[256];
+        public static byte[] m_Keys = null;
 
         public GetKeysForm()
         {
@@ -46,7 +46,7 @@ namespace FileDecryption
 
         private void btn_GetKeys_Click(object sender, EventArgs e)
         {
-            if (m_EncryptFile == null || m_EncryptFile == string.Empty)
+            if (string.IsNullOrEmpty(m_EncryptFile))
             {
                 txtMessage.Text += "请选择文件！\r\n";
                 return;
@@ -91,7 +91,7 @@ namespace FileDecryption
             List<byte> listdata2 = new List<byte>();
             List<byte> keys = new List<byte>();
 
-            if (data == null || data.Length < 1024)
+            if (data == null || data.Length < 512)
             {
                 txtMessage.Text += "加密文件数据过小，小于1KB！\r\n";
                 return null;
@@ -116,8 +116,21 @@ namespace FileDecryption
 
         private void btn_UpdateKeys_Click(object sender, EventArgs e)
         {
-            MainForm.m_Keys = m_Keys;
-            txtMessage.Text += "更新Keys完成！\r\n";
+            if (m_Keys != null && m_Keys.Length == 256)
+            {
+                MainForm.m_Keys = m_Keys;
+                txtMessage.Text += "更新Keys完成！\r\n";
+            }
+            else
+            {
+                txtMessage.Text += "请先获取Keys！\r\n";
+            }
+        }
+
+        private void btn_Help_Click(object sender, EventArgs e)
+        {
+            HelpForm frm = new HelpForm();
+            frm.Show();
         }
     }
 }
