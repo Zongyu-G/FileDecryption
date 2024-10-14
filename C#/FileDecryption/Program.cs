@@ -22,47 +22,51 @@ namespace FileDecryption
             }
             try
             {
-                string m_ParamFile = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)  + "\\FileDecryption.ini";
+                string m_ParamFile = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\FileDecryption.ini";
                 MainForm.m_Keys = MainForm.KeysToBytes(IniOperation.GetStringValue(m_ParamFile, "Setting", "Keys", MainForm.KeysToString(MainForm.keys)));
-                if (args != null)
+                if (args != null && args.Length != 0)
                 {
+                    MainForm.OnProcessStepChangeEvent += Program.OnProcessStepChanged;
                     string str = null;
-                    if (MainForm.DecryptFile(args[0]))
+                    AllocConsole();
+                    Console.Write(str);
+                    if (MainForm.DecryptFile(args[0], false))
                     {
-                        AllocConsole();
                         str = "解密完成！文件已保存至原文件路径。\r\n";
                         Console.Write(str);
                     }
                     else
                     {
-                        AllocConsole();
-                        str = "解密失败！尝试去数据头验证解密...\r\n";
+                        str = "解密失败！\r\n";
                         Console.Write(str);
-                        if (MainForm.DecryptFile(args[0], false))
-                        {
-                            str = "解密完成！文件已保存至原文件路径。\r\n";
-                            Console.Write(str);
-                        }
-                        else
-                        {
-                            str = "解密失败！\r\n";
-                            Console.Write(str);
-                        }
                     }
+                    //}
                     Console.ReadKey();
                     FreeConsole();
                     return;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                AllocConsole();
+                Console.Write("解密异常：" + ex.Message);
+                FreeConsole();
+                return;
             }
             //AllocConsole();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
             //FreeConsole();
+        }
+
+        public static void OnProcessStepChanged(int nStep)
+        {
+            if (nStep <= 100 && nStep >= 0)
+            {
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write(string.Format("解密中.......{0}%\r\n", nStep));
+            }
         }
         [DllImport("kernel32.dll")]
         public static extern bool FreeConsole();

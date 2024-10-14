@@ -16,7 +16,9 @@ namespace FileDecryption
     public partial class MainForm : Form
     {
         public string path = null;
+        private static bool m_lock = false;
         public static string m_SelectPath = "C:\\Users\\admin\\Desktop";
+        public List<string> m_SelectFiles = new List<string>();
         private string m_ParamFile = "";
         public static byte[] m_Keys = new byte[256];
         public static byte[] keys = {
@@ -32,128 +34,26 @@ namespace FileDecryption
         };
         public static byte[] fHead = { 135, 125, 28, 20, 33, 3, 9, 254, 255 };
 
+        //定义一个关联进度条时间刷新的委托
+        public delegate void OnProcessStepHandle(int nStep);
+        public static event OnProcessStepHandle OnProcessStepChangeEvent;
+
         public MainForm()
         {
             InitializeComponent();
             this.Icon = Properties.Resources.Icon768;
         }
 
-        public static bool DecryptFile(string encrypFilePath, bool HeadVerify = true)
+        private void MainForm_Load(object sender, EventArgs e)
         {
-            List<byte> data = new List<byte>();
-            List<byte> decData = new List<byte>();
-            string decryFile = Path.GetDirectoryName(encrypFilePath) + "\\" + Path.GetFileNameWithoutExtension(encrypFilePath) + "_out" + Path.GetExtension(encrypFilePath);
-            using (FileStream fsread = new FileStream(encrypFilePath, FileMode.Open, FileAccess.Read))
-            {
-                byte[] buffer = new byte[1024 * 1024 * 5];
-                int r = 0;
-                while (true)
-                {
-                    r = fsread.Read(buffer, 0, buffer.Length);
-                    if (r == 0)
-                        break;
-                    data.AddRange(buffer.Take(r));
-                }
-            }
-            List<byte> head = data.GetRange(0, 26);
-            //List<byte> temp = data.GetRange(26, 124);
-            //int sum = 0;
-            head.RemoveRange(3, 17);
-            if (head.SequenceEqual(fHead.ToList()) || !HeadVerify)
-            {
-                //temp.ForEach(delegate (byte x) { if (x == 0) sum++; else sum--; });
-                //if (sum != 124)
-                //    return false;
-                int j = 0;
-                for (int i = 0; i < data.Count; i++)
-                {
-                    if (i >= 512)
-                    {
-                        if (j == 256)
-                            j = 0;
-                        decData.Add((byte)(data[i] ^ m_Keys[j]));
-                        j++;
-                    }
-                }
-                using (FileStream fswrite = new FileStream(decryFile, FileMode.Create, FileAccess.Write))
-                {
-                    fswrite.Write(decData.ToArray(), 0, decData.Count);
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            OnProcessStepChangeEvent += OnProcessStepChanged;
+            LoadParamFile();
         }
 
-        private void btnSelectFile_Click(object sender, EventArgs e)
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "所有文件|*.*";
-            ofd.InitialDirectory = m_SelectPath;
-            ofd.Title = "选择文件";
-            DialogResult d = ofd.ShowDialog();
-            if (d == DialogResult.Cancel)
-                return;
-            else
-            {
-                txtFilePath.Text = path = ofd.FileName;
-                txtMessage.Text += string.Format("选择文件：{0}\r\n", path);
-                m_SelectPath = Path.GetDirectoryName(path);
-            }
-        }
-
-        private void btnDecryption_Click(object sender, EventArgs e)
-        {
-            if (path != txtFilePath.Text)
-            {
-                if (string.IsNullOrEmpty(txtFilePath.Text))
-                    return;
-                else if (txtFilePath.Text.ElementAt(0) == ' ')
-                    return;
-                path = txtFilePath.Text;
-                txtMessage.Text += string.Format("选择文件：{0}\r\n", path);
-            }
-            if (path == null || path == string.Empty)
-                return;
-            if (!File.Exists(path))
-            {
-                txtMessage.Text += "文件不存在！请检测文件路径及文件名是否正确！\r\n";
-                return;
-            }
-            else
-            {
-                if (DecryptFile(path, cbHeadVerify.Checked))
-                {
-                    if (!cbHeadVerify.Checked)
-                        txtMessage.Text += "解密完成！文件已保存至原文件路径，请查看解密文件是否正常。\r\n";
-                    else
-                        txtMessage.Text += "解密完成！文件已保存至原文件路径。\r\n";
-                }
-                else if (!cbHeadVerify.Checked)
-                {
-                    txtMessage.Text += "解密失败！\r\n";
-                }
-                else
-                {
-                    txtMessage.Text += "解密失败！或尝试去数据头验证解密。\r\n";
-                }
-            }
-        }
-
-        private void txtMessage_TextChanged(object sender, EventArgs e)
-        {
-            txtMessage.SelectionStart = txtMessage.Text.Length - 1;
-            txtMessage.ScrollToCaret();
-        }
-
-        private void MainForm_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.Copy;
-            string[] dragData = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-            txtFilePath.Text = path = dragData[0];
-            btnDecryption.PerformClick();
+            IniOperation.WriteValue(m_ParamFile, "Setting", "SelectPath", m_SelectPath);
+            IniOperation.WriteValue(m_ParamFile, "Setting", "Keys", KeysToString(m_Keys));
         }
 
         private void LoadParamFile()
@@ -175,6 +75,207 @@ namespace FileDecryption
             catch (Exception ex)
             {
                 m_ParamFile = "";
+            }
+        }
+
+        private void lbFilePath_DoubleClick(object sender, EventArgs e)
+        {
+            GetKeysForm frm = new GetKeysForm();
+            frm.Show();
+        }
+
+        /// <summary>
+        /// 进度条时间刷新
+        /// </summary>
+        /// <param name="nStep"></param>
+        public void OnProcessStepChanged(int nStep)
+        {
+            this.BeginInvoke((MethodInvoker)delegate
+            {
+                if (nStep <= 100 && nStep >= 0)
+                {
+                    progressBar1.Value = nStep;
+                    lb_progress.Text = string.Format("{0}%", nStep);
+                    if (nStep == 0)
+                    {
+
+                    }
+                    else if (nStep == 100)
+                    {
+                        m_lock = false;
+                    }
+                }
+            });
+        }
+
+        private void btnSelectFile_Click(object sender, EventArgs e)
+        {
+            if (m_lock)
+                return;
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "所有文件|*.*";
+            ofd.InitialDirectory = m_SelectPath;
+            ofd.Title = "选择文件";
+            ofd.Multiselect = true;
+            DialogResult d = ofd.ShowDialog();
+            if (d == DialogResult.Cancel)
+                return;
+            else
+            {
+                m_SelectFiles = ofd.FileNames.ToList();
+                string str = "";
+                m_SelectFiles.ForEach(delegate (string x) { str += string.Format("\"{0}\",", x); });
+                str = str.TrimEnd(',');
+                if (m_SelectFiles.Count > 1)
+                    txtFilePath.Text = str;
+                else
+                    txtFilePath.Text = m_SelectFiles[0];
+                ShowLog(string.Format("选择文件：{0}", str));
+                m_SelectPath = Path.GetDirectoryName(m_SelectFiles[0]);
+            }
+        }
+
+        private void txtMessage_TextChanged(object sender, EventArgs e)
+        {
+            txtMessage.SelectionStart = txtMessage.Text.Length - 1;
+            txtMessage.ScrollToCaret();
+        }
+
+        private void MainForm_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+            this.BeginInvoke((MethodInvoker)delegate
+            {
+                string[] dragData = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+                txtFilePath.Text = path = dragData[0];
+                btnDecryption.PerformClick();
+            });
+        }
+
+        private void btnDecryption_Click(object sender, EventArgs e)
+        {
+            if (m_lock)
+                return;
+            m_lock = true;
+            try
+            {
+                Task.Run(delegate
+              {
+                  bool isSame = true;
+                  List<string> txtlist = (from string s in txtFilePath.Text.Split(new char[] { '"' }, StringSplitOptions.RemoveEmptyEntries) where s != "," select s).ToList();
+                  m_SelectFiles.ForEach(delegate (string x) { if (!txtlist.Contains(x)) isSame = false; });
+                  if (!isSame)
+                  {
+                      if (string.IsNullOrEmpty(txtFilePath.Text))
+                      {
+                          m_lock = false;
+                          return;
+                      }
+                      else if (txtFilePath.Text.ElementAt(0) == ' ')
+                      {
+                          m_lock = false;
+                          return;
+                      }
+                      m_SelectFiles = txtlist;
+                      ShowLog(string.Format("选择文件：{0}", txtFilePath.Text));
+                  }
+                  if (m_SelectFiles == null || m_SelectFiles.Count == 0)
+                  {
+                      m_lock = false;
+                      return;
+                  }
+                  foreach (var s in m_SelectFiles)
+                  {
+                      if (!File.Exists(s))
+                      {
+                          ShowLog($"文件\"{s}\"不存在！请检测文件路径及文件名是否正确！");
+                          //m_lock = false;
+                          continue;
+                      }
+                      else
+                      {
+                          if (DecryptFile(s/*, cbHeadVerify.Checked*/))
+                          {
+                              if (!cbHeadVerify.Checked)
+                                  ShowLog($"文件\"{s}\"解密完成！文件已保存至原文件路径，请查看解密文件是否正常。");
+                              else
+                                  ShowLog($"文件\"{s}\"解密完成！文件已保存至原文件路径。");
+                          }
+                          else if (!cbHeadVerify.Checked)
+                          {
+                              ShowLog($"文件\"{s}\"解密失败！");
+                          }
+                          else
+                          {
+                              ShowLog($"文件\"{s}\"解密失败！或尝试去数据头验证解密。");
+                          }
+                      }
+                  }
+                  m_lock = false;
+              });
+            }
+            catch (Exception ex)
+            {
+                m_lock = false;
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public static bool DecryptFile(string encrypFilePath, bool bWinform = true)
+        {
+            try
+            {
+                long length = new FileInfo(encrypFilePath).Length;
+                string decryFile = Path.GetDirectoryName(encrypFilePath) + "\\" + Path.GetFileNameWithoutExtension(encrypFilePath) + "_out" + Path.GetExtension(encrypFilePath);
+                using (FileStream fsread = new FileStream(encrypFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    byte[] buffer = new byte[1024 * 1024 * 5];
+                    int r = 0, index = 0, j = 0;
+                    long position = 0;
+                    while (true)
+                    {
+                        List<byte> data = new List<byte>();
+                        List<byte> decData = new List<byte>();
+                        r = fsread.Read(buffer, 0, buffer.Length);
+                        if (r == 0)
+                        {
+                            break;
+                        }
+                        data.AddRange(buffer.Take(r));
+
+                        for (int i = 0; i < data.Count; i++)
+                        {
+                            if (index >= 512)
+                            {
+                                if (j == 256)
+                                    j = 0;
+                                decData.Add((byte)(data[i] ^ m_Keys[j]));
+                                j++;
+                            }
+                            index++;
+                        }
+                        double step = (double)position / length;
+                        OnProcessStepChangeEvent((int)(step * 100));
+                        using (FileStream fswrite = new FileStream(decryFile, FileMode.OpenOrCreate, FileAccess.Write))
+                        {
+                            fswrite.Position = position;
+                            fswrite.Write(decData.ToArray(), 0, decData.Count);
+                            position = fswrite.Position;
+                            fswrite.Close();
+                        }
+                    }
+                    fsread.Close();
+                }
+
+                OnProcessStepChangeEvent(100);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                OnProcessStepChangeEvent(100);
+                if (bWinform)
+                    MessageBox.Show(ex.Message);
+                return false;
             }
         }
 
@@ -217,23 +318,24 @@ namespace FileDecryption
                 return null;
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        public void ShowLog(string strlog)
         {
-            LoadParamFile();
-        }
-
-        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            IniOperation.WriteValue(m_ParamFile, "Setting", "SelectPath", m_SelectPath);
-            IniOperation.WriteValue(m_ParamFile, "Setting", "Keys", KeysToString(m_Keys));
-        }
-
-        private void lbFilePath_DoubleClick(object sender, EventArgs e)
-        {
-            GetKeysForm frm = new GetKeysForm();
-            frm.Show();
+            if (txtMessage.InvokeRequired)  //c#中禁止跨线程直接访问控件，InvokeRequired是为了解决这个问题而产生的,用一个异步执行委托
+            {
+                Action<string> actionDelegate = (x) => { this.txtMessage.Text += x.ToString() + "\r\n"; };
+                // 或者
+                // Action<string> actionDelegate = delegate(string txt) { this.label2.Text = txt; };
+                this.txtMessage.BeginInvoke(actionDelegate, strlog);
+            }
+            else
+            {
+                this.txtMessage.Text += strlog + "\r\n";
+            }
         }
     }
+
+
+    #region ini文件操作类
 
     public class IniOperation
     {
@@ -403,4 +505,6 @@ namespace FileDecryption
             return WritePrivateProfileSection(section, string.Empty, iniFile);
         }
     }
+
+    #endregion
 }
