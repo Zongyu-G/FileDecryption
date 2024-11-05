@@ -147,7 +147,8 @@ namespace FileDecryption
             this.BeginInvoke((MethodInvoker)delegate
             {
                 string[] dragData = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-                txtFilePath.Text = path = dragData[0];
+                txtFilePath.Text = path = dragData[0]; 
+                m_SelectFiles.Add(txtFilePath.Text);
                 btnDecryption.PerformClick();
             });
         }
